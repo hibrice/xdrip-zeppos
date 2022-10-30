@@ -1,0 +1,2 @@
+msgid "bgsource"
+msgstr "Blood Glucose Source"

@@ -1,0 +1,4 @@
+msgid "bloodGlucose"
+msgstr "Blood Glucose"
+msgid "noData"
+msgstr "No Data"
