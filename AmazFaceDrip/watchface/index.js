@@ -23,11 +23,21 @@ function getBG() {
       const { result = {} } = data
       if (result.error == false) {
         bgdata = result;
+        normal_error_text.setProperty(hmUI.prop.TEXT, '')
         normal_bg_text.setProperty(hmUI.prop.TEXT, result.sgv + ' ' + result.arrow)
         normal_bg_tips.setProperty(hmUI.prop.TEXT, result.delta + ' ' + result.date)
       }
+      else
+      {
+        normal_error_text.setProperty(hmUI.prop.TEXT, result.message)
+        normal_bg_text.setProperty(hmUI.prop.TEXT, '')
+        normal_bg_tips.setProperty(hmUI.prop.TEXT, '')
+      }
     })
     .catch((res) => {
+      normal_error_text.setProperty(hmUI.prop.TEXT, res.message)
+      normal_bg_text.setProperty(hmUI.prop.TEXT, '')
+      normal_bg_tips.setProperty(hmUI.prop.TEXT, '')
     })
 }
 
@@ -99,7 +109,23 @@ WatchFace({
       align_h: hmUI.align.LEFT,
       align_v: hmUI.align.CENTER_V,
       text_style: hmUI.text_style.NONE,
-      text: ""
+      text: "",
+      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
+    })
+
+    normal_error_text = hmUI.createWidget(hmUI.widget.TEXT, {
+      x: 300,
+      y: 219,
+      w: 96,
+      h: 36,
+      color: 0xff0000,
+      text_size: 28,
+      align_h: hmUI.align.LEFT,
+      align_v: hmUI.align.CENTER_V,
+      text_style: hmUI.text_style.NONE,
+      text: "",
+      char_space:-1,
+      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
     })
 
     normal_bg_tips = hmUI.createWidget(hmUI.widget.TEXT, {
@@ -112,7 +138,8 @@ WatchFace({
       align_h: hmUI.align.CENTER_H,
       align_v: hmUI.align.CENTER_V,
       text_style: hmUI.text_style.NONE,
-      text: ""
+      text: "",
+      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
     })
   },
   

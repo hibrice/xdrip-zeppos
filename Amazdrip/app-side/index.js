@@ -39,7 +39,7 @@ const fetchDataSGV = async (ctx) => {
 
   await fetch({url: 'http://127.0.0.1:17580/sgv.json', method: 'GET'})
     .then((response) => {
-      if (response.body == '')
+      if (!response.body)
         throw Error('No Data')
       if (response.body == [])
         throw Error('No Data')
@@ -85,7 +85,7 @@ const fetchDataPebble = async (ctx) => {
 
   await fetch({url: 'http://127.0.0.1:17580/pebble.json', method: 'GET'})
     .then((response) => {
-      if (response.body == '')
+      if (!response.body)
         throw Error('No Data')
 
       return response.body
