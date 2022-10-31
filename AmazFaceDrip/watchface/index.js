@@ -1,47 +1,64 @@
-import { readFileSync, writeFileSync } from './../utils/fs'
+import { writeFileSync, readFileSync } from './../utils/fs'
 
 const logger = DeviceRuntimeCore.HmLogger.getLogger('amazdrip-page')
 const { messageBuilder } = getApp()._options.globalData
-
-let normal_bg_text = null
-let normal_bg_tips = null
-let timerobj = null
-let bgdata = readFileSync();
 
 const img = (function(type){
   console.log('type + '/' + path')
   return (path) => type + '/' + path
 })('images')
 
-function getBG() {
-  messageBuilder
-    .request({
-      method: 'GET_BG'
-    })
-    .then(data => {
-      logger.log('receive data')
-      const { result = {} } = data
-      if (result.error == false) {
-        bgdata = result;
-        normal_error_text.setProperty(hmUI.prop.TEXT, '')
-        normal_bg_text.setProperty(hmUI.prop.TEXT, result.sgv + ' ' + result.arrow)
-        normal_bg_tips.setProperty(hmUI.prop.TEXT, result.delta + ' ' + result.date)
-      }
-      else
-      {
-        normal_error_text.setProperty(hmUI.prop.TEXT, result.message)
-        normal_bg_text.setProperty(hmUI.prop.TEXT, '')
-        normal_bg_tips.setProperty(hmUI.prop.TEXT, '')
-      }
-    })
-    .catch((res) => {
-      normal_error_text.setProperty(hmUI.prop.TEXT, res.message)
-      normal_bg_text.setProperty(hmUI.prop.TEXT, '')
-      normal_bg_tips.setProperty(hmUI.prop.TEXT, '')
-    })
+let state = {
+  bg_text: null,
+  bg_tips: null,
+  error_text: null,
+  count:0,
+  timer: null,
+  data: readFileSync(),
+  nextquery:0
+}
+
+function uiRefresh() {
+  if (state.data) {
+    state.bg_text.setProperty(hmUI.prop.TEXT, state.data.sgv + ' ' + state.data.arrow)
+    state.bg_tips.setProperty(hmUI.prop.TEXT, state.data.delta + ' ' + state.data.date)
+    state.error_text.setProperty(hmUI.prop.TEXT, '')
+  }
 }
 
 WatchFace({
+  
+  dataFetch() {
+    if (state.nextquery < Date.now())
+    {
+      if (state.nextquery)
+        state.nextquery = Date.now() + 10 * 1000
+      messageBuilder
+        .request({
+          method: 'GET_BG'
+        })
+        .then(data => {
+          logger.log('receive data')
+          const { result = {} } = data
+          if (result.error == false) {
+            state.data = result
+            uiRefresh()
+            state.nextquery = result.timestamp + 5 * 60 * 1000
+            writeFileSync(state.data, false)
+          }
+          else {
+            state.error_text.setProperty(hmUI.prop.TEXT, result.message)
+            state.bg_text.setProperty(hmUI.prop.TEXT, '')
+            state.bg_tips.setProperty(hmUI.prop.TEXT, '')
+          }
+        })
+        .catch((res) => {
+          state.error_text.setProperty(hmUI.prop.TEXT, res.message)
+          state.bg_text.setProperty(hmUI.prop.TEXT, '')
+          state.bg_tips.setProperty(hmUI.prop.TEXT, '')
+        })
+    }
+  },
 
   init_view() {
   
@@ -72,7 +89,7 @@ WatchFace({
       color: 0x000000
     });
 
-    const normal_analog_clock_time_pointer_hour = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
+    const analog_clock_time_pointer_hour = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
       hour_path: img('2.png'),
       hour_centerX: 240,
       hour_centerY: 240,
@@ -81,7 +98,7 @@ WatchFace({
       show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
     });
 
-    const normal_analog_clock_time_pointer_minute = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
+    const analog_clock_time_pointer_minute = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
       minute_path: img('3.png'),
       minute_centerX: 240,
       minute_centerY: 240,
@@ -99,7 +116,7 @@ WatchFace({
       show_level: hmUI.show_level.ONLY_NORMAL,
     });
 
-    normal_bg_text = hmUI.createWidget(hmUI.widget.TEXT, {
+    state.bg_text = hmUI.createWidget(hmUI.widget.TEXT, {
       x: 310,
       y: 219,
       w: 96,
@@ -113,22 +130,7 @@ WatchFace({
       show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
     })
 
-    normal_error_text = hmUI.createWidget(hmUI.widget.TEXT, {
-      x: 300,
-      y: 219,
-      w: 96,
-      h: 36,
-      color: 0xff0000,
-      text_size: 28,
-      align_h: hmUI.align.LEFT,
-      align_v: hmUI.align.CENTER_V,
-      text_style: hmUI.text_style.NONE,
-      text: "",
-      char_space:-1,
-      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
-    })
-
-    normal_bg_tips = hmUI.createWidget(hmUI.widget.TEXT, {
+    state.bg_tips = hmUI.createWidget(hmUI.widget.TEXT, {
       x: 300,
       y: 260,
       w: 110,
@@ -141,23 +143,37 @@ WatchFace({
       text: "",
       show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
     })
+
+    state.error_text = hmUI.createWidget(hmUI.widget.TEXT, {
+      x: 300,
+      y: 219,
+      w: 96,
+      h: 36,
+      color: 0xff0000,
+      text_size: 28,
+      align_h: hmUI.align.LEFT,
+      align_v: hmUI.align.CENTER_V,
+      text_style: hmUI.text_style.NONE,
+      text: "",
+      char_space:-1,
+      show_level: hmUI.show_level.ONLY_NORMAL,
+    })
   },
   
   onInit() {
 	  console.log('index page.js on init invoke')
-	
-	  this.init_view()
-    getBG()
   },
 
   build() {
   	console.log('index page.js on build invoke')
-    timerobj = timer.createTimer(500, 60000, getBG, {});
+
+    this.init_view()
+    uiRefresh()
+    state.timer = timer.createTimer(500, 1000, this.dataFetch, {})
   },
 
   onDestroy() {
 	  console.log('index page.js on destroy invoke')
-    timer.stopTimer(timerobj);
-    writeFileSync(bgdata, false)
+    timer.stopTimer(state.timer);
   },
 })

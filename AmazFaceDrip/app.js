@@ -13,7 +13,7 @@ const messageBuilder = new MessageBuilder({
 
 App({
   globalData: {
-    messageBuilder: messageBuilder,
+    messageBuilder: messageBuilder
   },
 
   onCreate(options) {

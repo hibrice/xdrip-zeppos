@@ -11,5 +11,5 @@ export function writeFileSync(data, merge = true) {
   if (merge) {
     params = [...readFileSync(), ...data]
   }
-  fs.writeFileSync(AMAZDRIP_FILE_NAMEj, JSON.stringify(params))
+  fs.writeFileSync(AMAZDRIP_FILE_NAME, JSON.stringify(params))
 }

@@ -60,6 +60,7 @@ const fetchDataSGV = async (ctx) => {
         data: { 
           result: {
             date: timestamp2Date(data[0].date), 
+            timestamp: data[0].date,
             device: data[0].device, 
             delta: data[0].delta,
             sgv: data[0].sgv,
@@ -95,6 +96,7 @@ const fetchDataPebble = async (ctx) => {
         data: { 
           result: {
             date: timestamp2Date(data.bgs[0].datetime), 
+            timestamp: data.bgs[0].datetime,
             delta: data.bgs[0].bgdelta,
             sgv: data.bgs[0].sgv,
             direction: data.bgs[0].direction, 
