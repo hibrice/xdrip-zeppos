@@ -181,6 +181,8 @@ WatchFace({
     if (screenType == hmSetting.screen_type.AOD)
       state.timer = timer.createTimer(1, 1000, this.bleFetch, {})
     else {
+      // Read glucose from the file updated every 5 minutes from the AOD screen. 
+      // When trying to fetch data from ble data is not updated.
       this.bleFetch()
       state.timer = timer.createTimer(1000, 1000, this.fileFetch, {})
     }
