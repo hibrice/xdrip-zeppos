@@ -28,7 +28,7 @@ function uiRefresh() {
 
 WatchFace({
   
-  dataFetch() {
+  bleFetch() {
     if (state.nextquery < Date.now())
     {
       if (state.nextquery)
@@ -57,6 +57,14 @@ WatchFace({
           state.bg_text.setProperty(hmUI.prop.TEXT, '')
           state.bg_tips.setProperty(hmUI.prop.TEXT, '')
         })
+    }
+  },
+
+  fileFetch() {
+    if (state.nextquery < Date.now())
+    {
+      state.data = readFileSync()
+      uiRefresh()
     }
   },
 
@@ -162,14 +170,20 @@ WatchFace({
   
   onInit() {
 	  console.log('index page.js on init invoke')
+    this.init_view()
+    uiRefresh()
   },
 
   build() {
   	console.log('index page.js on build invoke')
+    const screenType = hmSetting.getScreenType()
 
-    this.init_view()
-    uiRefresh()
-    state.timer = timer.createTimer(500, 1000, this.dataFetch, {})
+    if (screenType == hmSetting.screen_type.AOD)
+      state.timer = timer.createTimer(1, 1000, this.bleFetch, {})
+    else {
+      this.bleFetch()
+      state.timer = timer.createTimer(1000, 1000, this.fileFetch, {})
+    }
   },
 
   onDestroy() {
