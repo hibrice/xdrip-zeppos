@@ -132,11 +132,9 @@ AppSideService({
     messageBuilder.on('request', (ctx) => {
       const payload = messageBuilder.buf2Json(ctx.request.payload)
       if (payload.method === 'GET_DATA') {
-        //return fetchDataPebble(ctx);
         return fetchDataSGV(ctx);
       }
       if (payload.method === 'GET_BG') {
-        //return fetchDataPebble(ctx);
         return fetchDataPebble(ctx);
       }
     })

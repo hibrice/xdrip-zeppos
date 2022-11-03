@@ -1,4 +1,4 @@
-import { TITLE_TEXT_STYLE, SGV_TEXT_STYLE, TIME_TEXT_STYLE, ERROR_TEXT_STYLE } from './index.style'
+import { TITLE_TEXT_STYLE, SGV_TEXT_STYLE, TIME_TEXT_STYLE, ERROR_TEXT_STYLE, GRAPH_STYLE } from './index.style'
 import { readFileSync, writeFileSync } from './../../../utils/fs'
 
 const logger = DeviceRuntimeCore.HmLogger.getLogger('amazdrip-page')
@@ -9,6 +9,7 @@ Page({
     title: null,
     tipText: null,
     bgText: null,
+    graph: null,
     data: readFileSync(),
   },
   onInit() {
@@ -51,62 +52,23 @@ Page({
           this.displayBG()
       })
       .catch((res) => {
-        this.displayError({message: 'No Connexion'})
+        this.displayError({message: res.message})
       })
   },
   changeUI(data) {
-    let ytext = [];
-    for (var i = 50; i <= 250; i += 50) {
-      ytext.unshift(i);
+    let sgvslen = data.sgvs.length;
+
+    if (this.state.graph) {
+        this.state.graph.setProperty(hmUI.prop.data_array, data.sgvs);
+        this.state.graph.setProperty(hmUI.prop.data_count, sgvslen);
     }
-
-
-    const view = hmUI.createWidget(hmUI.widget.HISTOGRAM, {
-      x: 100,
-      y: 120,
-      h: 300,
-      w: 300,
-      item_width: 10,
-      item_space: 10,
-      item_radius: 10,
-      item_start_y: 50,
-      item_max_height: 250,
-      item_color: 0x304ffe,
-      data_array: data.sgvs,
-      data_count: data.sgvs.length,
-      data_min_value: 50,
-      data_max_value: 250,
-/*      xline: {
-        pading: 20,
-        space: 20,
-        start: 0,
-        end: 300,
-        color: 0x00c853,
-        width: 1,
-        count: 15
-      },
-      yline: {
-        pading: 10,
-        space: 10,
-        start: 0,
-        end: 300,
-        color: 0xff6d00,
-        width: 1,
-        count: 30
-      },*/
-      yText: {
-        x: 0,
-        y: 20,
-        w: 50,
-        h: 50,
-        space: 10,
-        align: hmUI.align.LEFT,
-        color: 0xFFFFFF,
-        count: ytext.length,
-        data_array: ytext
-      }
-    })
-
+    else {
+      this.state.graph = hmUI.createWidget(hmUI.widget.HISTOGRAM, {
+        ...GRAPH_STYLE,
+        data_array: data.sgvs,
+        data_count: sgvslen,
+      });
+    }
 
     if (this.state.bgText) {
       this.state.bgText.setProperty(hmUI.prop.TEXT, data.sgv + ' ' + data.arrow);
@@ -118,13 +80,12 @@ Page({
       });
     }
     if (this.state.tipText) {
-      //this.state.tipText.setProperty(hmUI.prop.TEXT, '∆ ' + data.delta + ' ' + data.date);
-      this.state.tipText.setProperty(JSON.stringify(data.times));
+      this.state.tipText.setProperty(hmUI.prop.TEXT, data.delta + ' - ' + data.date);
     }
     else {
       this.state.tipText = hmUI.createWidget(hmUI.widget.TEXT, {
         ...TIME_TEXT_STYLE,
-        text: '∆ ' + data.delta + ' ' + data.date
+        text: data.delta + ' - ' + data.date
       });
     }
   },

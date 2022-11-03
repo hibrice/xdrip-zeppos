@@ -2,7 +2,7 @@
   "configVersion": "v2",
   "app": {
     "appId": 25840,
-    "appName": "AmazFaceDrip",
+    "appName": "xDrip Refinement",
     "appType": "watchface",
     "version": {
       "code": 1,
@@ -58,7 +58,7 @@
   },
   "i18n": {
     "en-US": {
-      "appName": "AmazFaceDrip"
+      "appName": "xDrip Refinement"
     }
   },
   "defaultLanguage": "en-US"

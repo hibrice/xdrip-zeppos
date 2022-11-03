@@ -65,6 +65,7 @@ WatchFace({
     {
       state.data = readFileSync()
       uiRefresh()
+      state.nextquery = state.data.timestamp + 5 * 60 * 1000
     }
   },
 
@@ -94,7 +95,8 @@ WatchFace({
       y: 219,
       w: 96,
       h: 38,
-      color: 0x000000
+      color: 0x000000,
+      show_level: hmUI.show_level.ONLY_NORMAL,
     });
 
     const analog_clock_time_pointer_hour = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
@@ -166,6 +168,23 @@ WatchFace({
       char_space:-1,
       show_level: hmUI.show_level.ONLY_NORMAL,
     })
+
+    normal_background_bg_img.addEventListener(hmUI.event.CLICK_DOWN, function (info) {
+      this.bleFetch()
+    });
+
+    const launchapp = hmUI.createWidget(hmUI.widget.IMG, {
+      x: 290,
+      y: 210,
+      w: 120,
+      h: 80,
+      src: img('6.png'),
+      show_level: hmUI.show_level.ONLY_NORMAL,
+    });
+
+    launchapp.addEventListener(hmUI.event.CLICK_DOWN, function (info) {
+      hmApp.startApp({ appid: 25016, url: 'page/gtr-3/home/index.page'})
+    });
   },
   
   onInit() {
