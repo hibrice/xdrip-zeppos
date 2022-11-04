@@ -19,7 +19,7 @@ let state = {
 }
 
 function uiRefresh() {
-  if (state.data) {
+  if (state.data && (state.data.error == false)) {
     state.bg_text.setProperty(hmUI.prop.TEXT, state.data.sgv + ' ' + state.data.arrow)
     state.bg_tips.setProperty(hmUI.prop.TEXT, state.data.delta + ' ' + state.data.date)
     state.error_text.setProperty(hmUI.prop.TEXT, '')
@@ -40,19 +40,21 @@ WatchFace({
         .then(data => {
           logger.log('receive data')
           const { result = {} } = data
+          state.data = result
+          writeFileSync(state.data, false)
           if (result.error == false) {
-            state.data = result
             uiRefresh()
             state.nextquery = result.timestamp + 5 * 60 * 1000
-            writeFileSync(state.data, false)
           }
           else {
+            state.nextquery = Date.now() + 60 * 1000
             state.error_text.setProperty(hmUI.prop.TEXT, result.message)
             state.bg_text.setProperty(hmUI.prop.TEXT, '')
             state.bg_tips.setProperty(hmUI.prop.TEXT, '')
           }
         })
         .catch((res) => {
+          state.nextquery = Date.now() + 60 * 1000
           state.error_text.setProperty(hmUI.prop.TEXT, res.message)
           state.bg_text.setProperty(hmUI.prop.TEXT, '')
           state.bg_tips.setProperty(hmUI.prop.TEXT, '')
@@ -64,8 +66,16 @@ WatchFace({
     if (state.nextquery < Date.now())
     {
       state.data = readFileSync()
-      uiRefresh()
-      state.nextquery = state.data.timestamp + 5 * 60 * 1000
+      if (state.data.error == false) {
+        uiRefresh()
+        state.nextquery = state.data.timestamp + 5 * 60 * 1000
+      }
+      else {
+        state.nextquery = Date.now() + 60 * 1000
+        state.error_text.setProperty(hmUI.prop.TEXT, state.data.message)
+        state.bg_text.setProperty(hmUI.prop.TEXT, '')
+        state.bg_tips.setProperty(hmUI.prop.TEXT, '')
+      }
     }
   },
 
@@ -99,32 +109,7 @@ WatchFace({
       show_level: hmUI.show_level.ONLY_NORMAL,
     });
 
-    const analog_clock_time_pointer_hour = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
-      hour_path: img('2.png'),
-      hour_centerX: 240,
-      hour_centerY: 240,
-      hour_posX: 16,
-      hour_posY: 240,
-      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
-    });
-
-    const analog_clock_time_pointer_minute = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
-      minute_path: img('3.png'),
-      minute_centerX: 240,
-      minute_centerY: 240,
-      minute_posX: 16,
-      minute_posY: 239,
-      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
-    });
-
-    const normal_analog_clock_time_pointer_second = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
-      second_path: img('4.png'),
-      second_centerX: 240,
-      second_centerY: 240,
-      second_posX: 16,
-      second_posY: 239,
-      show_level: hmUI.show_level.ONLY_NORMAL,
-    });
+    
 
     state.bg_text = hmUI.createWidget(hmUI.widget.TEXT, {
       x: 310,
@@ -166,11 +151,34 @@ WatchFace({
       text_style: hmUI.text_style.NONE,
       text: "",
       char_space:-1,
-      show_level: hmUI.show_level.ONLY_NORMAL,
+      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
     })
 
-    normal_background_bg_img.addEventListener(hmUI.event.CLICK_DOWN, function (info) {
-      this.bleFetch()
+    const analog_clock_time_pointer_hour = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
+      hour_path: img('2.png'),
+      hour_centerX: 240,
+      hour_centerY: 240,
+      hour_posX: 16,
+      hour_posY: 240,
+      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
+    });
+
+    const analog_clock_time_pointer_minute = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
+      minute_path: img('3.png'),
+      minute_centerX: 240,
+      minute_centerY: 240,
+      minute_posX: 16,
+      minute_posY: 239,
+      show_level: hmUI.show_level.ONLY_NORMAL | hmUI.show_level.ONAL_AOD,
+    });
+
+    const normal_analog_clock_time_pointer_second = hmUI.createWidget(hmUI.widget.TIME_POINTER, {
+      second_path: img('4.png'),
+      second_centerX: 240,
+      second_centerY: 240,
+      second_posX: 16,
+      second_posY: 239,
+      show_level: hmUI.show_level.ONLY_NORMAL,
     });
 
     const launchapp = hmUI.createWidget(hmUI.widget.IMG, {
@@ -184,6 +192,10 @@ WatchFace({
 
     launchapp.addEventListener(hmUI.event.CLICK_DOWN, function (info) {
       hmApp.startApp({ appid: 25016, url: 'page/gtr-3/home/index.page'})
+    });
+
+    normal_background_bg_img.addEventListener(hmUI.event.CLICK_DOWN, function (info) {
+      this.bleFetch()
     });
   },
   

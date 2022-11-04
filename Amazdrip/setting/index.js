@@ -43,31 +43,25 @@ AppSettingsPage({
         },
       },
       [
-        Select({
-          label: gettext('bgsource'),
-          value: this.state.bgsource,
-          options: [
-            {
-              name:'xDrip',
-              value:'xdrip'
-            },
-            {
-              name:'Nightscout',
-              value:'nightscout'
-            },
-            {
-              name:'Android APS',
-              value:'aaps'
-            }
-          ],
+        Text({
+          text:gettext('settings:about'),
+          paragraph: true
+        }),
+        Toggle({
+          label: gettext('nightscoot:enable'),
+          value: false,
           onChange: (val) => {
-            console.log('select change:', val)
-            this.setSource(val)
+            //this.setSource(val)
+            // display form / save source
           },
         }),
         TextInput({
-          label:'bgsource',
-          value: this.state.bgsource
+          label:gettext('nightscoot:url'),
+          placeholder: gettext('nightscoot:url:about')
+        }),
+        TextInput({
+          label:gettext('nightscoot:key'),
+          placeholder: gettext('nightscoot:key:about')
         })
       ],
     )

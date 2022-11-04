@@ -18,7 +18,7 @@ export const TITLE_TEXT_STYLE = {
 export const SGV_TEXT_STYLE = {
   text: getText('noData'),
   x: px(15),
-  y: px(86),
+  y: px(88),
   w: DEVICE_WIDTH - px(15 * 2),
   h: 50,
   color: 0xffffff,
@@ -51,9 +51,9 @@ export const GRAPH_STYLE = {
   item_radius: 0,
   item_color: 0xF20000,
   item_start_y:0,
-  data_min_value: 0,
+  data_min_value: 50,
   data_max_value: 250,  
-  /*        xline: {
+  /*xline: {
           pading: 0,
           space: 5,
           start: 0,
@@ -61,26 +61,26 @@ export const GRAPH_STYLE = {
           color: 0x00c853,
           width: 1,
           count: 300
-        },*/
+  },*/
   yline: {
-    pading: 0,
-    space: 50,
+    pading: 52,
+    space: 49,
     start: 0,
     end: 300,
     color: 0x999999,
     width: 1,
-    count: 5
+    count: 4
   },
   yText: {
     x: 0,
-    y: 0,
+    y: 22,
     w: 50,
     h: 50,
     space: 0,
     align: hmUI.align.RIGHT,
     color: 0x999999,
-    count: 5,
-    data_array: [250, 200, 150, 100, 50]
+    count: 4,
+    data_array: [200, 150, 100, 50]
   }
 }
 

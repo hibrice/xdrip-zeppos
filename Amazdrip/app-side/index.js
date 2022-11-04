@@ -41,7 +41,7 @@ const fetchDataSGV = async (ctx) => {
     .then((response) => {
       if (!response.body)
         throw Error('No Data')
-      if (response.body == [])
+      if (response.body == '[]')
         throw Error('No Data')
 
       return JSON.parse(response.body)
