@@ -2,6 +2,10 @@ import { gettext } from 'i18n'
 import { MessageBuilder } from '../shared/message'
 const messageBuilder = new MessageBuilder()
 
+let nsenable = settings.settingsStorage.getItem('ns:enable');
+let nsurl = settings.settingsStorage.getItem('ns:url');
+let nssecret = settings.settingsStorage.getItem('ns:secret');
+
 function timestamp2Date(timestamp)
 {
   var date = new Date(timestamp);
@@ -33,6 +37,59 @@ function text2Arrow(text)
     default:
       return text;
   }
+}
+
+const fetchDataNS = async (ctx) => {
+
+  await fetch({
+      url: nsurl+'/api/v1/entries/sgv.json?count=24', 
+      method: 'GET',
+      headers: {
+        'api-secret': nssecret
+      },
+    })
+    .then((response) => {
+      if (!response.body)
+        throw Error('No Data')
+      if (response.body == '[]')
+        throw Error('No Data')
+
+      return JSON.parse(response.body)
+    })
+    .then((data) => {
+      let sgvs = [];
+      let times = [];
+      let timestamp = [];
+      data.forEach((item, index) => {
+        sgvs.unshift(item.sgv)
+        times.unshift(timestamp2Date(item.date))
+        timestamp.unshift(item.date)
+      });
+
+      ctx.response({
+        data: { 
+          result: {
+            date: timestamp2Date(data[0].date), 
+            timestamp: data[0].date,
+            device: data[0].device, 
+            delta: Math.round(data[0].delta),
+            sgv: data[0].sgv,
+            sgvs: sgvs,
+            times: times,
+            direction: data[0].direction, 
+            arrow: text2Arrow(data[0].direction),
+            unit: data[0].units_hint, 
+            error:false
+          }
+        }
+      })
+    })
+    .catch(function(error) {
+      ctx.response({
+        data: { result: {error: true, message: error.message} }
+      })
+    })
+
 }
 
 const fetchDataSGV = async (ctx) => {
@@ -114,28 +171,32 @@ const fetchDataPebble = async (ctx) => {
 
 }
 
-function getBloodGlucose() {
-  return settings.settingsStorage.getItem('bgsource')
-    ? gettext(settings.settingsStorage.getItem('bgsource'))
-    : gettext('nobgsource')
-}
 
 AppSideService({
   onInit() {
+    
     messageBuilder.listen(() => {})
     settings.settingsStorage.addListener(
       'change',
       ({ key, newValue, oldValue }) => {
-        messageBuilder.call(getBloodGlucose())
+        nsenable = settings.settingsStorage.getItem('ns:enable');
+        nsurl = settings.settingsStorage.getItem('ns:url');
+        nssecret = settings.settingsStorage.getItem('ns:secret');
       },
     )
     messageBuilder.on('request', (ctx) => {
       const payload = messageBuilder.buf2Json(ctx.request.payload)
       if (payload.method === 'GET_DATA') {
-        return fetchDataSGV(ctx);
+        if (nsenable == 'true')
+          return fetchDataNS(ctx);
+        else
+          return fetchDataSGV(ctx);
       }
       if (payload.method === 'GET_BG') {
-        return fetchDataPebble(ctx);
+        if (nsenable == 'true')
+          return fetchDataNS(ctx);
+        else
+          return fetchDataPebble(ctx);
       }
     })
   },

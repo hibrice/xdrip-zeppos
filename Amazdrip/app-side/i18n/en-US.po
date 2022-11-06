@@ -1,8 +1,0 @@
-msgid "nobgsource"
-msgstr "Please set Blood Glucose Source in settings"
-msgid "xdrip"
-msgstr "xDrip"
-msgid "nightscout"
-msgstr "Nightscout"
-msgid "aaps"
-msgstr "Android APS"

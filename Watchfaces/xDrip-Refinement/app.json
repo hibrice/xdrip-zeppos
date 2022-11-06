@@ -59,6 +59,9 @@
   "i18n": {
     "en-US": {
       "appName": "xDrip Refinement"
+    },
+    "fr-FR": {
+      "appName": "xDrip Refinement"
     }
   },
   "defaultLanguage": "en-US"

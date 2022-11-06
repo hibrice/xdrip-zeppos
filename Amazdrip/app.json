@@ -67,10 +67,10 @@
   },
   "i18n": {
     "en-US": {
-      "appName": "AmazDrip"
+      "appName": "Blood glucose"
     },
     "fr-FR": {
-      "appName": "AmazDrip"
+      "appName": "Glycémie"
     }
   },
   "defaultLanguage": "en-US"
